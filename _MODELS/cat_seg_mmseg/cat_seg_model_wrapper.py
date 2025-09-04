@@ -50,10 +50,9 @@ def _pack_from_mmseg(inputs, data_samples, device):
             sem_seg = sample.gt_sem_seg.data.to(device)
         else:
             sem_seg = None
-
+        
         batched.append({
             'image': img.to(device),
-            'image_id': sample.img_id,
             'sem_seg': sem_seg,
             'height': img_h, 'width': img_w,
             'ori_height': ori_h, 'ori_width': ori_w,
@@ -86,7 +85,7 @@ class CATSegWrapper(BaseSegmentor):
         cfg.merge_from_file(d2_yaml_cfg)
         cfg.freeze()
 
-        self.d2_model = CATSeg(CATSeg.from_config(cfg))
+        self.d2_model = CATSeg(cfg)
         self.device = self.d2_model.device
         if d2_weights_path:
             # d2_model을 위한 checkpointer를 생성합니다.

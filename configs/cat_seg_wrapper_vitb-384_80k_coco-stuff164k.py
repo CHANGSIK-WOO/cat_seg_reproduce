@@ -3,7 +3,7 @@
 # 1. 모델 설정
 model = dict(
     type='CATSegWrapper',
-    d2_yaml_cfg='./vitb_384.yaml',
+    d2_yaml_cfg='configs/vitb_384.yaml',
     d2_weights_path='pretrained/model_base.pth', # https://huggingface.co/spaces/hamacojr/CAT-Seg-weights/resolve/main/model_base.pth
     data_preprocessor=dict(
         type='SegDataPreProcessor',
@@ -11,7 +11,8 @@ model = dict(
         std=[58.395, 57.120, 57.375],
         bgr_to_rgb=True,
         pad_val=0,
-        seg_pad_val=255
+        seg_pad_val=255,
+        size_divisor = 32
     )
 )
 
@@ -21,15 +22,19 @@ data_root = '/data/datasets/coco_stuff164k/'
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations'),
-    dict(type='RandomResize', scale=(2048, 512), ratio_range=(0.5, 2.0), keep_ratio=True),
+    dict(type='RandomResize', scale=(512, 512), ratio_range=(1.0, 1.3), keep_ratio=True),
     dict(type='RandomCrop', crop_size=(512, 512), cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PhotoMetricDistortion'),
-    dict(type='PackSegInputs')
+    dict(type='PackSegInputs',
+                 # 아래 meta_keys를 추가하여 필요한 모든 메타 정보를 명시합니다.
+         meta_keys=('img_path', 'seg_map_path', 'ori_shape', 'img_shape',
+                    'pad_shape', 'scale_factor', 'flip', 'flip_direction',
+                    'img_id'))
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='Resize', scale=(2048, 512), keep_ratio=True),
+    dict(type='Resize', scale=(512, 512), keep_ratio=True),
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
@@ -42,7 +47,8 @@ train_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_prefix=dict(img_path='images/train2017', seg_map_path='annotations/train2017'),
-        pipeline=train_pipeline
+        pipeline=train_pipeline,
+        seg_map_suffix=".png" # mmseg/datasets/coco_stuff.py __init__.py에서 seg_map_suffix='_labelTrainIds.png' 로 초기화. 변경
     )
 )
 val_dataloader = dict(
@@ -65,8 +71,16 @@ test_evaluator = val_evaluator
 train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=5000)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
-optimizer = dict(type='AdamW', lr=0.0002, weight_decay=0.0001)
-optim_wrapper = dict(type='OptimWrapper', optimizer=optimizer, clip_grad=dict(max_norm=0.01, norm_type=2))
+
+optim_wrapper = dict(
+    type='AmpOptimWrapper',
+    dtype='float32',
+    loss_scale='dynamic',
+    optimizer=dict(type='AdamW', lr=2.5e-5, weight_decay=0.0001),
+    clip_grad=dict(max_norm=1.0, norm_type=2)
+)
+# optimizer = dict(type='AdamW', lr=0.0002, weight_decay=0.0001)
+# optim_wrapper = dict(type='OptimWrapper', optimizer=optimizer, clip_grad=dict(max_norm=0.01, norm_type=2))
 param_scheduler = [
     dict(type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
     dict(type='PolyLR', power=0.9, by_epoch=False, begin=1500, end=80000)
