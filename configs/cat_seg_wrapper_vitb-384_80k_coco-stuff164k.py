@@ -4,7 +4,7 @@
 model = dict(
     type='CATSegWrapper',
     d2_yaml_cfg='./vitb_384.yaml',
-    d2_weights_path='../pretrained/model_base.pth', # https://huggingface.co/spaces/hamacojr/CAT-Seg-weights/resolve/main/model_base.pth
+    d2_weights_path='pretrained/model_base.pth', # https://huggingface.co/spaces/hamacojr/CAT-Seg-weights/resolve/main/model_base.pth
     data_preprocessor=dict(
         type='SegDataPreProcessor',
         mean=[123.675, 116.280, 103.530],
