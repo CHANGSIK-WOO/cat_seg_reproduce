@@ -10,5 +10,5 @@ from _MODELS import CATSegWrapper
 
 __all__ = [
     'BaseSegmentor', 'EncoderDecoder', 'CascadeEncoderDecoder', 'SegTTAModel',
-    'MultimodalEncoderDecoder', 'DepthEstimator', "CatSegWrapper"
+    'MultimodalEncoderDecoder', 'DepthEstimator', "CATSegWrapper"
 ]
