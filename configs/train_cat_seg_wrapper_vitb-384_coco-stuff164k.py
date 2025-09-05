@@ -44,7 +44,7 @@ test_pipeline = [dict(type='LoadImageFromFile'),
                                  'pad_shape', 'scale_factor', 'flip', 'flip_direction','img_id'))]
 
 # <DataLoader>
-train_dataloader = dict(batch_size=1,
+train_dataloader = dict(batch_size=2,
                         num_workers=4,
                         persistent_workers=True,
                         sampler=dict(type='InfiniteSampler', shuffle=True),
@@ -76,7 +76,7 @@ test_evaluator = val_evaluator
 # 3. Scheduler & Runtime
 
 # <Scheduler>
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=5000)
+train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=10000)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 

@@ -1,3 +1,16 @@
+#!/usr/bin/env bash
+
+#SBATCH --job-name=cat_seg_reproduce
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:2
+#SBATCH -p batch
+#SBATCH -w vgi1
+#SBATCH --cpus-per-gpu=10
+#SBATCH --mem=55G
+#SBATCH --time=2-0
+#SBATCH -o ./logs/%N_%x_%j.out
+#SBATCH -e ./logs/%N_%x_%j.err
+
 CONFIG=$1
 CHECKPOINT=$2
 GPUS=$3
