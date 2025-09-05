@@ -20,6 +20,7 @@ from mmengine.structures import InstanceData, PixelData
 
 
 from detectron2.config import get_cfg
+from detectron2.projects.deeplab import add_deeplab_config, build_lr_scheduler
 from detectron2.checkpoint import DetectionCheckpointer
 
 
@@ -84,6 +85,7 @@ class CATSegWrapper(BaseSegmentor):
         super().__init__(init_cfg=init_cfg, data_preprocessor=data_preprocessor)
 
         cfg = get_cfg()
+        add_deeplab_config(cfg)
         add_cat_seg_config(cfg)
         cfg.merge_from_file(d2_yaml_cfg)
         cfg.freeze()

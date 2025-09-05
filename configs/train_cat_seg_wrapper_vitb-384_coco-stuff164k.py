@@ -83,13 +83,27 @@ test_cfg = dict(type='TestLoop')
 optim_wrapper = dict(type='AmpOptimWrapper',
                      dtype='bfloat16',
                      loss_scale='dynamic',
-                     optimizer=dict(type='AdamW', lr=2.5e-5, weight_decay=0.0001),
+                     optimizer=dict(type='AdamW', lr=0.0002, weight_decay=0.0001),
+                     paramwise_cfg=dict(custom_keys={'backbone': dict(lr_mult=0.0),  # 백본 가중치 동결
+                                                     'text_encoder': dict(lr_mult=0.01) # CLIP 텍스트 인코더는 0.01배의 학습률 적용
+                                                     }),
                      clip_grad=dict(max_norm=1.0, norm_type=2))
 # optimizer = dict(type='AdamW', lr=0.0002, weight_decay=0.0001)
 # optim_wrapper = dict(type='OptimWrapper', optimizer=optimizer, clip_grad=dict(max_norm=0.01, norm_type=2))
 
-param_scheduler = [dict(type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
-                   dict(type='PolyLR', power=0.9, by_epoch=False, begin=1500, end=80000)]
+# param_scheduler = [dict(type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
+#                    dict(type='PolyLR', power=0.9, by_epoch=False, begin=1500, end=80000)]
+
+param_scheduler = [
+    # 웜업(Warmup) 스케줄러: 1,500번의 반복 동안 학습률을 선형적으로 증가시킵니다.
+    dict(type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
+    # 메인 스케줄러: CosineAnnealingLR
+    dict(type='CosineAnnealingLR',
+         T_max=80000,  # 총 반복 횟수
+         eta_min=0.0,    # 최소 학습률
+         by_epoch=False,
+         begin=1500,
+         end=80000)]
 
 default_scope = 'mmseg'
 env_cfg = dict(cudnn_benchmark=True,
