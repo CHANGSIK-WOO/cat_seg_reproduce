@@ -69,6 +69,9 @@ def _to_mmseg(processed_results, data_samples, device):
         ds = SegDataSample()
         ds.pred_sem_seg = PixelData(data=pred_sem_seg_logits)
 
+        if hasattr(sample, 'gt_sem_seg'):
+            ds.gt_sem_seg = sample.gt_sem_seg
+            
         if hasattr(sample, 'metainfo'):
             ds.set_metainfo(sample.metainfo)
 

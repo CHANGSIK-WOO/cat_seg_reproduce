@@ -76,14 +76,35 @@ class IoUMetric(BaseMetric):
         """
         num_classes = len(self.dataset_meta['classes'])
         for data_sample in data_samples:
+            print(data_sample)
+            print(f"data_sample['pred_sem_seg']['data'] : {data_sample['pred_sem_seg']['data'].shape}")
+            print(f"data_sample['gt_sem_seg']['data'] : {data_sample['gt_sem_seg']['data'].shape}")
             pred_label = data_sample['pred_sem_seg']['data'].squeeze()
             # format_only always for test dataset without ground truth
+
+            #======original======
+            # if not self.format_only:
+            #     label = data_sample['gt_sem_seg']['data'].squeeze().to(
+            #         pred_label)
+            #     self.results.append(
+            #         self.intersect_and_union(pred_label, label, num_classes,
+            #                                  self.ignore_index))
+            #======original======                
+
+            #======revised======
             if not self.format_only:
-                label = data_sample['gt_sem_seg']['data'].squeeze().to(
-                    pred_label)
+                label = data_sample['gt_sem_seg']['data'].squeeze().to(pred_label.device)
+
+                # --- 수정 시작 ---
+                # Logits 텐서(3D)를 예측 레이블 맵(2D)으로 변환합니다.
+                # dim=0은 클래스 차원을 의미합니다.
+                pred_label = torch.argmax(pred_label, dim=0)
+                # --- 수정 끝 ---
+
                 self.results.append(
-                    self.intersect_and_union(pred_label, label, num_classes,
-                                             self.ignore_index))
+                    self.intersect_and_union(pred_label, label, num_classes, self.ignore_index))
+            #======revised======
+
             # format_result
             if self.output_dir is not None:
                 basename = osp.splitext(osp.basename(

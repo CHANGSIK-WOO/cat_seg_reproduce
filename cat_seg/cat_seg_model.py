@@ -154,19 +154,25 @@ class CATSeg(nn.Module):
         res5 = rearrange(self.layers[1][1:, :, :], "(H W) B C -> B C H W", H=24)
         res4 = self.upsample1(res4)
         res5 = self.upsample2(res5)
-        features = {'res5': res5, 'res4': res4, 'res3': res3,}
+        features = {'res5': res5, 'res4': res4, 'res3a': res3,}
 
         outputs = self.sem_seg_head(clip_features, features)
+        orig_dtype = outputs.dtype
         if self.training:
-            targets = torch.stack([x["sem_seg"].to(self.device) for x in batched_inputs], dim=0)
-            outputs = F.interpolate(outputs, size=(targets.shape[-2], targets.shape[-1]), mode="bilinear", align_corners=False)
+            targets = torch.stack([x["sem_seg"].to(self.device) for x in batched_inputs], dim=0).squeeze(1) #torch.Size([2, 1, 512, 512]) -> [2, 512, 512]
+            # print(targets.unique())
+            #outputs = F.interpolate(outputs, size=(targets.shape[-2], targets.shape[-1]), mode="bilinear", align_corners=False) #torch.Size([2, 171, 512, 512])          
+            outputs = F.interpolate(outputs.float(), size=(targets.shape[-2], targets.shape[-1]), mode="bilinear", align_corners=False).to(orig_dtype) #torch.Size([2, 171, 512, 512])          
             
             num_classes = outputs.shape[1]
-            mask = targets != self.sem_seg_head.ignore_value
+            mask = (targets != self.sem_seg_head.ignore_value) #torch.Size([2, 512, 512])
+            # print(mask.unique())            
+            # print(targets[mask].unique())
 
-            outputs = outputs.permute(0,2,3,1)
-            _targets = torch.zeros(outputs.shape, device=self.device)
-            _onehot = F.one_hot(targets[mask], num_classes=num_classes).float()
+            outputs = outputs.permute(0,2,3,1) # [2, 512, 512, 171]
+            _targets = torch.zeros(outputs.shape, device=self.device) # [2, 512, 512, 171]
+            _onehot = F.one_hot(targets[mask], num_classes=num_classes).float() 
+            
             _targets[mask] = _onehot
             
             loss = F.binary_cross_entropy_with_logits(outputs, _targets)
