@@ -4,9 +4,8 @@
 model = dict(
     type='CATSegWrapper',
     d2_yaml_cfg='configs/vitb_384.yaml',
-    #d2_weights_path='pretrained/model_base.pth', 
+    d2_weights_path='pretrained/model_base.pth', 
     #https://huggingface.co/spaces/hamacojr/CAT-Seg-weights/resolve/main/model_base.pth
-    d2_weights_path=None,
     data_preprocessor=dict(
         type='SegDataPreProcessor',
         mean=[123.675, 116.280, 103.530],
@@ -39,6 +38,7 @@ train_pipeline = [dict(type='LoadImageFromFile'),
 test_pipeline = [dict(type='LoadImageFromFile'),
                  dict(type='LoadAnnotations'),
                  dict(type='Resize', scale=(384, 384), keep_ratio=True),
+                 dict(type='Pad', size=(384, 384)),
                  dict(type='PackSegInputs',
                       meta_keys=('img_path', 'seg_map_path', 'ori_shape', 'img_shape',
                                  'pad_shape', 'scale_factor', 'flip', 'flip_direction','img_id'))]
@@ -128,6 +128,6 @@ default_hooks = dict(timer=dict(type='IterTimerHook'),
                      param_scheduler=dict(type='ParamSchedulerHook'),
                      checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=5000),
                      sampler_seed=dict(type='DistSamplerSeedHook'),
-                     visualization=dict(type='SegVisualizationHook'))
+                     visualization=dict(type='SegVisualizationHook', draw=False, interval=10))
 
 # custom_hooks = [dict(type='ClassMappingSanityHook')]

@@ -9,8 +9,8 @@ set -euo pipefail
 
 #args parsing
 CONFIG="./configs/train_cat_seg_wrapper_vitb-384_coco-stuff164k.py"
-CHECKPOINT="./pretrained/model_base.pth"
-EXTRA_ARGS=("${@:2}")
+CHECKPOINT="${2:-}"
+EXTRA_ARGS=("${@:3}")
 export PYTHONUNBUFFERED=1
 TEST_PY="./tools/test.py"
 
@@ -21,13 +21,16 @@ echo "[INFO] EXTRA_ARGS=${EXTRA_ARGS[*]-}"
 
 . /home/$USER/anaconda3/etc/profile.d/conda.sh
 conda activate catseg
+ARGS=("${CONFIG}")
+if [[ -n "${CHECKPOINT}" ]]; then
+  ARGS+=("${CHECKPOINT}")
+fi
 torchrun \
   --nproc_per_node="${GPUS}" \
   "${TEST_PY}" \
-  "${CONFIG}" \
-  "${CHECKPOINT}" \
+  "${ARGS[@]}" \
   --launcher pytorch \
-  "${EXTRA_ARGS[@]}"    
+  "${EXTRA_ARGS[@]}"
 
 
     

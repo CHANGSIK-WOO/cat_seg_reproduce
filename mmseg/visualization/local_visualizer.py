@@ -127,19 +127,23 @@ class SegLocalVisualizer(Visualizer):
         """
         num_classes = len(classes)
 
-        sem_seg = sem_seg.cpu().data
+        sem_seg = sem_seg.cpu().data.squeeze()
+        print(f"sem_seg shape : {sem_seg.shape}") # [1, 256, 384]
         ids = np.unique(sem_seg)[::-1]
         legal_indices = ids < num_classes
         ids = ids[legal_indices]
-        labels = np.array(ids, dtype=np.int64)
+        labels = np.array(ids, dtype=np.int64) # (24,)
+        print(f"colors shape : {labels.shape}")
 
         colors = [palette[label] for label in labels]
+        # [[64, 160, 64], [64, 32, 192], [128, 192, 32], [0, 192, 32], [192, 128, 64], [128, 96, 192], [64, 192, 32], [128, 32, 64], [128, 64, 224], [64, 0, 192], [128, 32, 128], [192, 0, 96], [64, 0, 224], [128, 64, 0], [192, 128, 224], [0, 64, 0], [64, 160, 0], [64, 128, 96], [128, 192, 0], [128, 64, 64], [0, 0, 32], [192, 32, 128], [0, 128, 64], [0, 192, 64]]
 
         mask = np.zeros_like(image, dtype=np.uint8)
+        print(f"mask shape : {mask.shape}") # (426, 640, 3)
         for label, color in zip(labels, colors):
             mask[sem_seg[0] == label, :] = color
 
-        if with_labels:
+        if with_labels: 
             font = cv2.FONT_HERSHEY_SIMPLEX
             # (0,1] to change the size of the text relative to the image
             scale = 0.05
