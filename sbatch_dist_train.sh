@@ -22,7 +22,7 @@ GPUS="${GPUS:-${SLURM_GPUS_ON_NODE:-2}}"
 
 mkdir -p ./logs
 export PYTHONUNBUFFERED=1
-TRAIN_PY="./train.py"
+TRAIN_PY="./tools/train.py"
 
 echo "[INFO] CONFIG=${CONFIG}"
 echo "[INFO] GPUS=${GPUS}"

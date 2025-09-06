@@ -129,3 +129,5 @@ default_hooks = dict(timer=dict(type='IterTimerHook'),
                      checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=5000),
                      sampler_seed=dict(type='DistSamplerSeedHook'),
                      visualization=dict(type='SegVisualizationHook'))
+
+# custom_hooks = [dict(type='ClassMappingSanityHook')]

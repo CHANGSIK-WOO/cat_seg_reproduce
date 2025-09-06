@@ -1,20 +1,33 @@
-CONFIG=$1
-CHECKPOINT=$2
-GPUS=$3
-NNODES=${NNODES:-1}
-NODE_RANK=${NODE_RANK:-0}
-PORT=${PORT:-29500}
-MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
 
-PYTHONPATH="$(dirname $0)/..":$PYTHONPATH \
-python -m torch.distributed.launch \
-    --nnodes=$NNODES \
-    --node_rank=$NODE_RANK \
-    --master_addr=$MASTER_ADDR \
-    --nproc_per_node=$GPUS \
-    --master_port=$PORT \
-    $(dirname "$0")/test.py \
-    $CONFIG \
-    $CHECKPOINT \
-    --launcher pytorch \
-    ${@:4}
+GPUS="${GPUS:-${SLURM_GPUS_ON_NODE:-2}}"
+# NNODES=${NNODES:-1}
+# NODE_RANK=${NODE_RANK:-0}
+# PORT=${PORT:-29500}
+# MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
+
+set -euo pipefail
+
+#args parsing
+CONFIG="./configs/train_cat_seg_wrapper_vitb-384_coco-stuff164k.py"
+CHECKPOINT="./pretrained/model_base.pth"
+EXTRA_ARGS=("${@:2}")
+export PYTHONUNBUFFERED=1
+TEST_PY="./tools/test.py"
+
+echo "[INFO] CONFIG=${CONFIG}"
+echo "[INFO] GPUS=${GPUS}"
+echo "[INFO] TRAIN_PY=${TEST_PY}"
+echo "[INFO] EXTRA_ARGS=${EXTRA_ARGS[*]-}"
+
+. /home/$USER/anaconda3/etc/profile.d/conda.sh
+conda activate catseg
+torchrun \
+  --nproc_per_node="${GPUS}" \
+  "${TEST_PY}" \
+  "${CONFIG}" \
+  "${CHECKPOINT}" \
+  --launcher pytorch \
+  "${EXTRA_ARGS[@]}"    
+
+
+    

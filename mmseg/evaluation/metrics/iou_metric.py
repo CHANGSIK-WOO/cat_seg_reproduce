@@ -76,9 +76,9 @@ class IoUMetric(BaseMetric):
         """
         num_classes = len(self.dataset_meta['classes'])
         for data_sample in data_samples:
-            print(data_sample)
-            print(f"data_sample['pred_sem_seg']['data'] : {data_sample['pred_sem_seg']['data'].shape}")
-            print(f"data_sample['gt_sem_seg']['data'] : {data_sample['gt_sem_seg']['data'].shape}")
+            # print(data_sample)
+            # print(f"data_sample['pred_sem_seg']['data'] : {data_sample['pred_sem_seg']['data'].shape}")
+            # print(f"data_sample['gt_sem_seg']['data'] : {data_sample['gt_sem_seg']['data'].shape}")
             pred_label = data_sample['pred_sem_seg']['data'].squeeze()
             # format_only always for test dataset without ground truth
 

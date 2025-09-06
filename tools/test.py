@@ -115,6 +115,24 @@ def main():
     # build the runner from config
     runner = Runner.from_cfg(cfg)
 
+    import json
+    from mmengine.model import is_model_wrapper
+
+    ds = runner.val_dataloader.dataset
+    metas = getattr(ds, 'METAINFO', getattr(ds, 'metainfo', {}))
+    mmseg_classes = list(metas.get('classes', []))
+    mdl = runner.model.module if is_model_wrapper(runner.model) else runner.model
+    num_out = getattr(getattr(mdl, 'decode_head', None), 'num_classes', None) or getattr(mdl, 'num_classes', None)
+    d2_classes = json.load(open("datasets/coco.json"))
+    num_out = num_out or len(d2_classes) 
+
+    print("[DEBUG] mmseg:", len(mmseg_classes))
+    print("[DEBUG] model:", num_out)
+    print("[DEBUG] d2   :", len(d2_classes))
+
+    assert num_out == len(mmseg_classes) == len(d2_classes), "num_classes mismatch"
+    assert mmseg_classes[:20] == d2_classes[:20] and mmseg_classes[-20:] == d2_classes[-20:], "class order mismatch"
+
     # start testing
     runner.test()
 
