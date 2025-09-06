@@ -3,7 +3,7 @@
 # 1. Model Setting
 model = dict(
     type='CATSegWrapper',
-    d2_yaml_cfg='configs/vitb_384.yaml',
+    d2_yaml_cfg='configs/coco-stuff164k_vitb_384.yaml',
     d2_weights_path='pretrained/model_base.pth', 
     #https://huggingface.co/spaces/hamacojr/CAT-Seg-weights/resolve/main/model_base.pth
     data_preprocessor=dict(

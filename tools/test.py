@@ -127,7 +127,8 @@ def main():
     mmseg_classes = list(metas.get('classes', []))
     mdl = runner.model.module if is_model_wrapper(runner.model) else runner.model
     num_out = getattr(getattr(mdl, 'decode_head', None), 'num_classes', None) or getattr(mdl, 'num_classes', None)
-    d2_classes = json.load(open("datasets/coco.json"))
+    # d2_classes = json.load(open("datasets/coco.json"))
+    d2_classes = json.load(open("datasets/ade150.json"))
     num_out = num_out or len(d2_classes) 
 
     print("[DEBUG] mmseg:", len(mmseg_classes))
