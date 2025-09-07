@@ -79,11 +79,22 @@ from cat_seg import (
     add_cat_seg_config,
 )
 
+from ..cat_seg.distribution_save_hook import DistributionSaveHook
 
 class Trainer(DefaultTrainer):
     """
     Extension of the Trainer class adapted to DETR.
     """
+
+    # build_hooks 메소드를 오버라이드하여 새로운 Hook을 추가합니다.
+    def build_hooks(self):
+        hooks = super().build_hooks()
+        # config 파일에서 분포 저장 경로를 가져와 Hook을 추가합니다.
+        hooks.append(DistributionSaveHook(
+            distributions_path=self.cfg.MODEL.SEM_SEG_HEAD.DISTRIBUTIONS_PATH
+        ))
+        return hooks
+
 
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
