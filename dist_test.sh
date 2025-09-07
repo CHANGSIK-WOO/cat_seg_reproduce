@@ -15,7 +15,6 @@ CHECKPOINT="${2:-}"
 EXTRA_ARGS=("${@:3}")
 export PYTHONUNBUFFERED=1
 TEST_PY="./tools/test.py"
-#PORT=${PORT:-29500}
 
 echo "[INFO] CONFIG=${CONFIG}"
 echo "[INFO] GPUS=${GPUS}"

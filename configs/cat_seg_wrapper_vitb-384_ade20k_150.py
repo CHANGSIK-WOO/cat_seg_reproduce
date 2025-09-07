@@ -53,6 +53,7 @@ train_dataloader = dict(batch_size=2,
                                      #indices=list(range(100)),
                                      data_prefix=dict(img_path='images/training', seg_map_path='annotations/training'), # <-- 
                                      pipeline=train_pipeline,
+                                     reduce_zero_label=False,
                                      #mmseg/datasets/coco_stuff.py __init__.py에서 seg_map_suffix='_labelTrainIds.png' 로 초기화. 변경
                                      seg_map_suffix=".png"))
 val_dataloader = dict(batch_size=1,
@@ -64,6 +65,7 @@ val_dataloader = dict(batch_size=1,
                                    #indices=list(range(100)),
                                    data_prefix=dict(img_path='images/validation', seg_map_path='annotations_detectron2/validation'), # <-- 
                                    pipeline=test_pipeline,
+                                   reduce_zero_label=False,
                                    seg_map_suffix=".png"))
 
 test_dataloader = val_dataloader
